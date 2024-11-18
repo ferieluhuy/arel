@@ -64,10 +64,43 @@ sudo ip link add link eth1 name eth1.10 type vlan id 10
 sudo ip addr add 192.168.A.1/24 dev eth1.10
 sudo ip link set up dev eth1.10
 
+
+# Interface yang ingin dicek (ubah jika interface berbeda)
+INTERFACE="eth0"
+
+# Mendapatkan MAC address
+MAC_ADDRESS=$(ip link show $INTERFACE | awk '/ether/ {print $2}')
+
+# Mengecek apakah MAC address berhasil ditemukan
+if [ -z "$MAC_ADDRESS" ]; then
+    echo "MAC address untuk interface $INTERFACE tidak ditemukan!"
+    exit 1
+fi
+
+echo "MAC address untuk $INTERFACE adalah: $MAC_ADDRESS"
+
+# Menambahkan entri DHCP secara otomatis
+DHCP_CONFIG="/etc/dhcp/dhcpd.conf"
+PC_IP="192.168.12.50"  # IP statis untuk PC
+
+echo "Menambahkan entri ke file konfigurasi DHCP..."
+echo "" >> $DHCP_CONFIG
+echo "host fantasia {" >> $DHCP_CONFIG
+echo "    hardware ethernet $MAC_ADDRESS;" >> $DHCP_CONFIG
+echo "    fixed-address $PC_IP;" >> $DHCP_CONFIG
+echo "}" >> $DHCP_CONFIG
+
+# Restart DHCP server untuk menerapkan perubahan
+echo "Restarting DHCP server..."
+sudo systemctl restart isc-dhcp-server
+
+echo "Proses selesai! Entri DHCP ditambahkan."
+
+
 # Konfigurasi DHCP Server untuk VLAN 10
 cat <<EOT | sudo tee /etc/dhcp/dhcpd.conf
 A slightly different configuration for an internal subnet.
- subnet 10.5.5.0 netmask 255.255.255.224 (
+ subnet 192.5.5.0 netmask 255.255.255.224 (
  range 10.5.5.26 10.5.5.30;
  option domain-name-servers ns1.internal.example.org;
   option domain-name "internal.example.org";
