@@ -85,9 +85,9 @@ PC_IP="192.168.12.50"  # IP statis untuk PC
 
 echo "Menambahkan entri ke file konfigurasi DHCP..."
 echo "" >> $DHCP_CONFIG
-echo "host fantasia {" >> $DHCP_CONFIG
-echo "    hardware ethernet $MAC_ADDRESS;" >> $DHCP_CONFIG
-echo "    fixed-address $PC_IP;" >> $DHCP_CONFIG
+echo "host fantasia {" >> 
+echo "    hardware ethernet  00:50:79:66:68:0c;" >> $DHCP_CONFIG
+echo "    fixed-address 192.168.12.30;" >> $DHCP_CONFIG
 echo "}" >> $DHCP_CONFIG
 
 # Restart DHCP server untuk menerapkan perubahan
@@ -100,13 +100,13 @@ echo "Proses selesai! Entri DHCP ditambahkan."
 # Konfigurasi DHCP Server untuk VLAN 10
 cat <<EOT | sudo tee /etc/dhcp/dhcpd.conf
 A slightly different configuration for an internal subnet.
- subnet 192.5.5.0 netmask 255.255.255.224 (
- range 10.5.5.26 10.5.5.30;
+ subnet 192.168.12.0 netmask 255.255.255.224 (
+ range 192.168.12.2 192.168.12.254;
  option domain-name-servers ns1.internal.example.org;
   option domain-name "internal.example.org";
  option subnet-mask 255.255.255.224;
- option routers 10.5.5.1;
- option broadcast-address 10.5.5.31;
+ option routers 192.168.12.1;
+ option broadcast-address 192.168.12.254;
  default-lease-time 600;
  max-lease-time 7200;
 
