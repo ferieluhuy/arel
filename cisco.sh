@@ -1,26 +1,34 @@
 #!/bin/bash
+ 
+CISCO_IP="192.168.73.131" # Ganti dengan IP perangkat Cisco
+CISCO_PORT="30003"
 
-# IP dan kredensial perangkat Cisco
-CISCO_IP="192.168.1.1"      # Ganti dengan IP perangkat Cisco Anda
-USERNAME="admin"            # Username SSH Cisco
-PASSWORD="cisco123"         # Password SSH Cisco
+# Konfigurasi Telnet dengan Expect
+expect -c "
+spawn telnet $CISCO_IP $CISCO_PORT
+send \"enable\r\"
+expect \"#\"
+send \"configure terminal\r\"
+expect \"(config)#\"
+send \"vlan 10\r\"
+expect \"(config-vlan)#\"
+send \"name Vlan10\r\"
+expect \"(config-vlan)#\"
+send \"exit\r\"
+send \"interface vlan 10\r\"
+expect \"(config-if)#\"
+send \"ip address 192.168.12.1 255.255.255.0\r\"
+expect \"(config-if)#\"
+send \"no shutdown\r\"
+expect \"(config-if)#\"
+send \"exit\r\"
+send \"end\r\"
+expect \"#\"
+send \"write memory\r\"
+expect \"#\"
+send \"exit\r\"
+expect eof
+"
 
-# Perintah konfigurasi Cisco
-read -r -d '' CONFIG_COMMANDS << EOL
-conf t
-interface vlan 10
-ip address 192.168.10.1 255.255.255.0
-no shutdown
-exit
-ip routing
-exit
-write memory
-EOL
-
-# Script untuk mengirim konfigurasi ke Cisco menggunakan SSH
-sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$192.168.10.1 << EOF
-$CONFIG_COMMANDS
-EOF
-
-# Pesan sukses
-echo "Konfigurasi berhasil diterapkan ke perangkat Cisco!"
+# Pesan selesai
+echo "Konfigurasi Cisco melalui Telnet selesai!"
