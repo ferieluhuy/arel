@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CISCO_IP="192.168.12.10" # Ganti dengan IP perangkat Cisco
+CISCO_IP="192.168.73.131" # Ganti dengan IP perangkat Cisco
 CISCO_PORT="30003"
 UBUNTU_ROUTE1="192.168.200.0/24"  # Jaringan tujuan pertama
 UBUNTU_GATEWAY1="192.168.12.2"    # Gateway pertama
