@@ -19,11 +19,22 @@ expect \"(config-vlan)#\"
 send \"name Vlan10\r\"
 expect \"(config-vlan)#\"
 send \"exit\r\"
+
+# Konfigurasi interface VLAN
 send \"interface vlan 10\r\"
 expect \"(config-if)#\"
 send \"ip address 192.168.12.1 255.255.255.0\r\"
 expect \"(config-if)#\"
 send \"no shutdown\r\"
+expect \"(config-if)#\"
+send \"exit\r\"
+
+# Konfigurasi mode trunk pada interface
+send \"interface GigabitEthernet0/1\r\"  # Ganti dengan interface yang benar
+expect \"(config-if)#\"
+send \"switchport mode trunk\r\"
+expect \"(config-if)#\"
+send \"switchport trunk allowed vlan 10\r\"  # Mengizinkan VLAN 10 di trunk
 expect \"(config-if)#\"
 send \"exit\r\"
 
