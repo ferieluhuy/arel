@@ -30,7 +30,7 @@ expect \"(config-if)#\"
 send \"exit\r\"
 
 # Konfigurasi mode trunk pada interface
-send \"interface GigabitEthernet0/1\r\"  # Ganti dengan interface yang benar
+send \"interface e0/0\r\"  # Ganti dengan interface yang benar
 expect \"(config-if)#\"
 send \"switchport mode trunk\r\"
 expect \"(config-if)#\"
