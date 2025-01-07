@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 
 # Mulai sesi telnet ke MikroTik
-spawn telnet 192.168.73.131 30016
+spawn telnet 192.168.234.132 30016
 set timeout 10
 
 # Login otomatis
@@ -25,7 +25,7 @@ expect {
     "Password changed" {
         puts "Password berhasil diubah."
     }
-    "Try again, error: New passwords do not match!" {   
+    "Try again, error: New passwords do not match!" {
         puts "Error: Password tidak cocok. Ulangi pengisian password."
         send "123\r"
         expect "repeat new password>" { send "123\r" }
@@ -45,14 +45,14 @@ expect ">" { puts "Konfigurasi MikroTik dimulai." }
 
 # Menambahkan IP Address untuk ether2
 send "/ip address add address=192.168.200.1/24 interface=ether2\r"
-expect ">" 
+expect ">"
 
 # Menambahkan NAT Masquerade
 send "/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade\r"
 expect ">"
 
 # Menambahkan Rute Default (Internet Gateway)
-send "/ip route add gateway=192.168.12.1\r"
+send "/ip route add gateway=192.168.20.1\r"
 expect ">"
 
 # Menambahkan pool DHCP
@@ -65,6 +65,14 @@ expect ">"
 
 # Menambahkan konfigurasi jaringan DHCP
 send "/ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8,8.8.4.4\r"
+expect ">"
+
+# Mengaktifkan layanan SSH
+send "/ip service enable ssh\r"
+expect ">"
+
+# Menentukan port untuk SSH (opsional, misalnya ubah ke 2222)
+send "/ip service set ssh port=2222\r"
 expect ">"
 
 # Keluar dari MikroTik
