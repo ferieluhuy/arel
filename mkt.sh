@@ -4,7 +4,7 @@
 log_user 1
 
 # Mulai sesi telnet ke MikroTik
-spawn telnet 192.168.234.132 30007  
+spawn telnet 192.168.73.131 30007                  
 set timeout 10
 
 # Login otomatis
