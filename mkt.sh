@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# Membersihkan layar
-clear
-
-# Teks ASCII Art
-echo "███████ ███████ ██████  ██ ██      "
-echo "██      ██      ██   ██ ██ ██      "
-echo "█████   █████   ██████  ██ ██      "
-echo "██      ██      ██   ██ ██ ██      "
-echo "██      ███████ ██   ██ ██ ███████ "
-echo ""
-
 # Informasi Telnet
 MIKROTIK_IP="192.168.73.131" # IP Mikrotik
 TELNET_PORT="30007"          # Port Telnet Mikrotik
@@ -20,19 +9,47 @@ expect -c "
 spawn telnet $MIKROTIK_IP $TELNET_PORT
 expect \">\"
 
-# Masuk ke mode konfigurasi
-send \"system identity set name=Mikrotik-Test\r\"
-expect \">\"
+#!/usr/bin/expect
 
-# Konfigurasi Interface
-send \"interface vlan add name=vlan10 vlan-id=10 interface=ether1\r\"
-expect \">\"
-send \"ip address add address=192.168.200.1/24 interface=vlan10\r\"
-expect \">\"
+# Mulai sesi telnet ke MikroTik
+spawn telnet 192.168.234.132 30016
+set timeout 10
 
-# Aktifkan NAT (Masquerade)
-send \"ip firewall nat add chain=srcnat action=masquerade out-interface=ether1\r\"
-expect \">\"
+# Login otomatis
+expect "Mikrotik Login: " { send "admin\r" }
+expect "Password: " { send "\r" }
+
+# Tangani prompt lisensi atau permintaan password baru
+expect {
+    -re "Do you want to see the software license.*" {
+        send "n\r"
+        exp_continue
+    }
+    "new password>" {
+        send "123\r"
+        expect "repeat new password>" { send "123\r" }
+    }
+}
+
+# Verifikasi apakah password berhasil diubah
+expect {
+    "Password changed" {
+        puts "Password berhasil diubah."
+    }
+    "Try again, error: New passwords do not match!" {
+        puts "Error: Password tidak cocok. Ulangi pengisian password."
+        send "123\r"
+        expect "repeat new password>" { send "123\r" }
+        expect "Password changed" { puts "Password berhasil diubah." }
+    }
+    ">" {
+        puts "Login berhasil tanpa perubahan password."
+    }
+    timeout {
+        puts "Error: Timeout setelah login."
+        exit 1
+    }
+}
 
 # Konfigurasi DHCP Server
 send \"ip pool add name=dhcp_pool ranges=192.168.200.2-192.168.200.254\r\"
@@ -41,12 +58,7 @@ send \"ip dhcp-server add name=dhcp1 interface=vlan10 address-pool=dhcp_pool lea
 expect \">\"
 send \"ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8\r\"
 expect \">\"
-
-# Simpan konfigurasi
-send \"system script add name=SaveConfig policy=ftp,read,write,policy,test,password,sniff,sensitive source='system backup save name=config_backup'\r\"
-expect \">\"
-send \"system script run SaveConfig\r\"
-expect \">\"
+    
 
 # Keluar dari Telnet
 send \"quit\r\"
