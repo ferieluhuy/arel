@@ -134,23 +134,8 @@ else
     success_message "${PROGRES[9]} sudah terinstal"
 fi
 
-# Memanggil script Cisco
-echo -e "${GREEN}${PROGRES[10]}${NC}"
-if [ -f "./csc.sh" ]; then
-    chmod +x ./csc.sh
-    ./csc.sh || error_message "${PROGRES[10]}"
-else
-    error_message "File ./csc.sh tidak ditemukan"
-fi
-
-# Memanggil script Mikrotik
-echo -e "${GREEN}${PROGRES[11]}${NC}"
-if [ -f "./mkt.sh" ]; then
-    chmod +x ./mkt.sh
-    ./mkt.sh || error_message "${PROGRES[11]}"
-else
-    error_message "File ./mkt.sh tidak ditemukan"
-fi
 
 # Pesan selesai
-echo "[SUCCESS] Seluruh konfigurasi selesai!"
+echo  "Seluruh konfigurasi selesai!"
+
+  
