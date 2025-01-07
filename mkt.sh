@@ -51,19 +51,33 @@ expect {
     }
 }
 
-# Konfigurasi DHCP Server
-send \"ip pool add name=dhcp_pool ranges=192.168.200.2-192.168.200.254\r\"
-expect \">\"
-send \"ip dhcp-server add name=dhcp1 interface=vlan10 address-pool=dhcp_pool lease-time=10m disabled=no\r\"
-expect \">\"
-send \"ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8\r\"
-expect \">\"
-    
+# Pastikan berada di prompt MikroTik sebelum melanjutkan
+expect ">" { puts "Konfigurasi MikroTik dimulai." }
 
-# Keluar dari Telnet
-send \"quit\r\"
+# Menambahkan IP Address untuk ether2
+send "/ip address add address=192.168.200.1/24 interface=ether2\r"
+expect ">" 
+
+# Menambahkan NAT Masquerade
+send "/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade\r"
+expect ">"
+
+# Menambahkan Rute Default (Internet Gateway)
+send "/ip route add gateway=192.168.12.1\r"
+expect ">"
+
+# Menambahkan pool DHCP
+send "/ip pool add name=dhcp_pool ranges=192.168.200.2-192.168.200.100\r"
+expect ">"
+
+# Menambahkan konfigurasi DHCP server
+send "/ip dhcp-server add name=dhcp1 interface=ether2 address-pool=dhcp_pool disabled=no\r"
+expect ">"
+
+# Menambahkan konfigurasi jaringan DHCP
+send "/ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8,8.8.4.4\r"
+expect ">"
+
+# Keluar dari MikroTik
+send "quit\r"
 expect eof
-"
-
-# Pesan selesai
-echo "Konfigurasi Mikrotik melalui Telnet selesai!"
