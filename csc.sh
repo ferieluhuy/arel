@@ -19,16 +19,16 @@ expect \"(config-vlan)#\"
 send \"exit\r\"
 
 # Mengonfigurasi interface trunk (port e0/0)
-send \"interface e0/0\r\"  # Port trunk
+send \"interface e0/0\r\"  
 expect \"(config-if)#\"
-send \"switchport mode trunk\r\"
+send \"switchport trunk encapsulation dot1q\r\"
 expect \"(config-if)#\"
-send \"switchport trunk allowed vlan 10\r\"  # Mengizinkan VLAN 10
+send \"switchport mode trunk\"
 expect \"(config-if)#\"
 send \"exit\r\"
 
 # Mengonfigurasi port akses VLAN 10 (kabel DHCP)
-send \"interface e0/1\r\"  # Ganti ke port yang terhubung ke kabel DHCP
+send \"interface e0/1\r\"  
 expect \"(config-if)#\"
 send \"switchport mode access\r\"
 expect \"(config-if)#\"
