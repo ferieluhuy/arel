@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 
 # Mulai sesi telnet ke MikroTik
-spawn telnet 192.168.234.132 30016
+spawn telnet 192.168.73.131 30016
 set timeout 10
 
 # Login otomatis
@@ -25,7 +25,7 @@ expect {
     "Password changed" {
         puts "Password berhasil diubah."
     }
-    "Try again, error: New passwords do not match!" {
+    "Try again, error: New passwords do not match!" {   
         puts "Error: Password tidak cocok. Ulangi pengisian password."
         send "123\r"
         expect "repeat new password>" { send "123\r" }
@@ -52,7 +52,7 @@ send "/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade\r
 expect ">"
 
 # Menambahkan Rute Default (Internet Gateway)
-send "/ip route add gateway=192.168.20.1\r"
+send "/ip route add gateway=192.168.12.1\r"
 expect ">"
 
 # Menambahkan pool DHCP
