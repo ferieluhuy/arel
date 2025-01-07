@@ -1,14 +1,3 @@
-#!/bin/bash
-
-# Informasi Telnet
-MIKROTIK_IP="192.168.73.131" # IP Mikrotik
-TELNET_PORT="30007"          # Port Telnet Mikrotik
-
-# Konfigurasi Telnet dengan Expect
-expect -c "
-spawn telnet $MIKROTIK_IP $TELNET_PORT
-expect \">\"
-
 #!/usr/bin/expect
 
 # Mulai sesi telnet ke MikroTik
@@ -63,7 +52,7 @@ send "/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade\r
 expect ">"
 
 # Menambahkan Rute Default (Internet Gateway)
-send "/ip route add gateway=192.168.12.1\r"
+send "/ip route add gateway=192.168.20.1\r"
 expect ">"
 
 # Menambahkan pool DHCP
