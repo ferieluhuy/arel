@@ -1,10 +1,7 @@
 #!/usr/bin/expect
 
-# Aktifkan log untuk debug
-log_user 1
-
 # Mulai sesi telnet ke MikroTik
-spawn telnet 192.168.73.131 30007                  
+spawn telnet 192.168.73.131 30007
 set timeout 10
 
 # Login otomatis
@@ -23,26 +20,53 @@ expect {
     }
 }
 
-# Verifikasi apakah login berhasil
+# Verifikasi apakah password berhasil diubah
 expect {
-    "Password changed" { puts "Password berhasil diubah." }
-    ">" { puts "Login berhasil tanpa perubahan password." }
-    timeout { puts "Error: Timeout setelah login."; exit 1 }
+    "Password changed" {
+        puts "Password berhasil diubah."
+    }
+    "Try again, error: New passwords do not match!" {
+        puts "Error: Password tidak cocok. Ulangi pengisian password."
+        send "123\r"
+        expect "repeat new password>" { send "123\r" }
+        expect "Password changed" { puts "Password berhasil diubah." }
+    }
+    ">" {
+        puts "Login berhasil tanpa perubahan password."
+    }
+    timeout {
+        puts "Error: Timeout setelah login."
+        exit 1
+    }
 }
+
+# Pastikan berada di prompt MikroTik sebelum melanjutkan
+expect ">" { puts "Konfigurasi MikroTik dimulai." }
 
 # Menambahkan IP Address untuk ether2
 send "/ip address add address=192.168.200.1/24 interface=ether2\r"
+expect ">" 
+
+# Menambahkan NAT Masquerade
+send "/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade\r"
 expect ">"
 
-#!/bin/bash
+# Menambahkan Rute Default (Internet Gateway)
+send "/ip route add gateway=192.168.12.1\r"
+expect ">"
 
-sshpass -p "123" ssh -o StrictHostKeyChecking=no admin@192.168.73.131 << EOF
-/ip address add address=192.168.200.1/24 interface=ether2
-/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade
-/ip route add gateway=192.168.12.1
-/ip pool add name=dhcp_pool ranges=192.168.200.2-192.168.200.100
-/ip dhcp-server add name=dhcp1 interface=ether2 address-pool=dhcp_pool disabled=no
-/ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8,8.8.4.4
-/ip service enable ssh
-quit
-EOF
+# Menambahkan pool DHCP
+send "/ip pool add name=dhcp_pool ranges=192.168.200.2-192.168.200.100\r"
+expect ">"
+
+# Menambahkan konfigurasi DHCP server
+send "/ip dhcp-server add name=dhcp1 interface=ether2 address-pool=dhcp_pool disabled=no\r"
+expect ">"
+
+# Menambahkan konfigurasi jaringan DHCP
+send "/ip dhcp-server network add address=192.168.200.0/24 gateway=192.168.200.1 dns-server=8.8.8.8,8.8.4.4\r"
+expect ">"
+
+# Keluar dari MikroTik
+send "quit\r"
+expect eof
