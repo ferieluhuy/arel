@@ -1,7 +1,9 @@
 #!/bin/bash
 
-CISCO_IP="192.168.72.131"  # IP perangkat Cisco
+CISCO_IP="192.168.73.131"
 CISCO_PORT="30003"
+
+expect <<EOF > /dev/null 2>&1
 spawn telnet $CISCO_IP $CISCO_PORT
 set timeout 20
 
